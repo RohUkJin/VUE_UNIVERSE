@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import CommonHeader from '../Common/CommonHeader.vue';
@@ -98,11 +98,33 @@ export default {
             });
         }
 
+        // 초기 검색 실행 함수
+        const initializeSearch = () => {
+            const query = route.query.q || '';
+            searchQuery.value = query;
+            if (query) {
+                // 새로운 검색 시작 시 이전 결과 초기화
+                searchResults.value = [];
+                searchCount.value = 0;
+                nextUrl.value = null;
+                hasMore.value = true;
+                
+                // 스크롤을 맨 위로 이동
+                window.scrollTo(0, 0);
+                
+                fetchSearchResults(query);
+            }
+        };
+
         onMounted(() => {
-            searchQuery.value = route.query.q || '';
-            if (searchQuery.value) {
-                fetchSearchResults(searchQuery.value);
-                window.addEventListener('scroll', handleScroll);
+            initializeSearch();
+            window.addEventListener('scroll', handleScroll);
+        });
+
+        // route.query.q의 변화를 감지하여 새로운 검색 실행
+        watch(() => route.query.q, (newQuery) => {
+            if (newQuery !== searchQuery.value) {
+                initializeSearch();
             }
         });
 

@@ -1,8 +1,6 @@
 <template>
     <CommonHeader />
     <div class="detail-container">
-        <button @click="goBack" class="back-btn">← Back</button>
-
         <article class="detail-article" v-if="post">
             <div class="detail-header">
                 <img :src="post.image_url" :alt="post.title" class="detail-image">
@@ -28,7 +26,6 @@
 
 <script>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 
 import CommonHeader from '../Common/CommonHeader.vue';
 
@@ -40,7 +37,6 @@ export default {
         id: String
     },
     setup(props) {
-        const router = useRouter();
         const post = ref(null);
 
         onMounted(() => {
@@ -61,10 +57,6 @@ export default {
             }
         };
 
-        const goBack = () => {
-            router.back();
-        };
-
         const formatDate = (dateString) => {
             return new Date(dateString).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -75,7 +67,6 @@ export default {
 
         return {
             post,
-            goBack,
             formatDate
         };
     }
@@ -86,23 +77,7 @@ export default {
 .detail-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 25px 0 0;
-}
-
-.back-btn {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 30px;
-    font-size: 16px;
-    display: none;
-}
-
-.back-btn:hover {
-    background: #0056b3;
+    padding: 24px 0 24px;
 }
 
 .detail-header {
@@ -178,5 +153,14 @@ export default {
     text-align: center;
     font-size: 18px;
     color: #666;
+}
+
+@media screen and (max-width: 1200px) {
+
+    .detail-article {
+        padding: 0 24px;
+    }
+
+
 }
 </style>

@@ -10,7 +10,7 @@
                         <span>Search</span>
                     </button>
                     <div class="search-input-box" v-if="isActive">
-                        <input type="text" v-model="searchQuery" placeholder="검색어를 입력하세요..." class="search-input"
+                        <input type="text" v-model="searchQuery" placeholder="Enter your search term..." class="search-input"
                             @keyup.enter="handleSearch" />
                     </div>
                 </li>
