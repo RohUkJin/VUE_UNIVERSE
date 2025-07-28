@@ -1,14 +1,10 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <CommonHeader />
     <div class="container">
         <section class="sc-kv">
-            <swiper 
-                :modules="modules"
-                :slides-per-view="1"
-                :autoplay="{ delay: 10000 }"
-                :loop="true"
-                class="main-swiper"
-            >
+            <swiper :modules="modules" :slides-per-view="1" :autoplay="{ delay: 10000 }" :loop="true"
+                class="main-swiper">
                 <swiper-slide>
                     <div class="imgbx">
                         <img src="../assets/images/slide-1.jpg" alt="">
@@ -27,7 +23,7 @@
                         <p>슬라이드 2 내용</p>
                     </div>
                 </swiper-slide>
-                
+
             </swiper>
         </section>
         <section class="sc-topics">
@@ -80,30 +76,17 @@
     </div>
 </template>
 
-<script>
-import { Autoplay } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/vue";
+<script setup>
 import "swiper/css";
 import "swiper/css/autoplay";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import { Autoplay } from "swiper/modules";
 
 import CommonHeader from './Common/CommonHeader.vue';
 
-export default {
-    name: 'HomePage',
-    components: {
-        CommonHeader,
-        Swiper,
-        SwiperSlide,
-    },
-    setup() {
-        const modules = [Autoplay];
-        
-        return {
-            modules
-        };
-    }
-}
+const modules = [Autoplay];
 </script>
+
 <style scoped>
 .sc-topics .title {
     font-size: 48px;

@@ -4,17 +4,17 @@
         <div class="inner">
             <h1 class="title">
                 Search Result: "{{ searchQuery }}"
-                <span class="result-count" v-if="!loading">({{ searchCount }})</span>
+                <span class="result-count" v-if="!isLoading">({{ searchCount }})</span>
             </h1>    
             <ul class="search-list">
-                <li class="search-item" v-for="article in searchResults" :key="article.id" @click="moveDetail(article)">
+                <li class="search-item" v-for="result in searchResults" :key="result.id" @click="moveDetail(result)">
                     <div class="search-imgbx">
-                        <img :src="article.image_url" :alt="article.title">
+                        <img :src="result.image_url" :alt="result.title">
                     </div>
                     <div class="search-txtbx">
-                        <span class="search-site">{{ article.news_site }}</span>
-                        <h2 class="search-title" v-html="highlightText(article.title)"></h2>
-                        <p class="search-summary" v-html="highlightText(article.summary)"></p>
+                        <span class="search-site">{{ result.news_site }}</span>
+                        <h2 class="search-title" v-html="highlightText(result.title)"></h2>
+                        <p class="search-summary" v-html="highlightText(result.summary)"></p>
                     </div>
                 </li>
             </ul>
@@ -22,127 +22,114 @@
     </section>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import CommonHeader from '../Common/CommonHeader.vue';
 
-export default {
-    components: { CommonHeader },
-    setup(){
-        const searchCount = ref(0)
-        const searchResults = ref([]);
-        const searchQuery = ref('');
-        const loading = ref(false);
-        const route = useRoute();
-        const router = useRouter();
-        const nextUrl = ref(null);
-        const hasMore = ref(true);
+const searchCount = ref(0)
+const searchResults = ref([]);
+const searchQuery = ref('');
+const isLoading = ref(false);
+const route = useRoute();
+const router = useRouter();
+const nextData = ref(null);
+const hasMoreData = ref(true);
 
-        const fetchSearchResults = async (query, url = null) => {
-            if (!query.trim()) return;
-            
-            loading.value = true;
+const fetchSearchResults = async (query, next = null) => {
+    // 검색값 없으면 종료
+    if (!query.trim()) return;
+    
+    // 로딩 시작
+    isLoading.value = true;
 
-            try {
-                const apiUrl = url || `https://api.spaceflightnewsapi.net/v4/blogs/?title_contains=${query.trim()}`
-                const res = await fetch(apiUrl)
-                const data = await res.json();
+    try {
+        const response = await fetch(next || `https://api.spaceflightnewsapi.net/v4/blogs/?title_contains=${query.trim()}`)
+        const data = await response.json();
 
-                if(url){
-                    searchResults.value = [...searchResults.value, ...data.results];
-                } else {
-                    searchResults.value = data.results;
-                    searchCount.value = data.count;
-                }
-                
-                nextUrl.value = data.next;
-                hasMore.value = !!data.next;
-            } catch(err) {
-                console.error('검색 실패:', err);
-                searchResults.value = [];
-            } finally {
-                loading.value = false;
-            }
+        if(next){
+            // 무한 스크롤
+            searchResults.value = [...searchResults.value, ...data.results];
+        } else {
+            // 최초 검색시
+            searchResults.value = data.results;
+            searchCount.value = data.count;
         }
-
-        const highlightText = (text) => {
-            if (!text || !searchQuery.value) return text;
-            
-            const query = searchQuery.value.trim();
-            if (!query) return text;
-            
-            // 정규표현식으로 대소문자 구분 없이 검색어를 찾아서 하이라이트
-            const regex = new RegExp(`(${query})`, 'gi');
-            return text.replace(regex, '<mark class="highlight">$1</mark>');
-        }
-
-        const handleScroll = () => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const windowHeight = window.innerHeight;
-            const documentHeight = document.documentElement.offsetHeight;
-            
-            if (scrollTop + windowHeight >= documentHeight - 100) {
-                if (hasMore.value && !loading.value && nextUrl.value) {
-                    fetchSearchResults(searchQuery.value, nextUrl.value);
-                }
-            }
-        };
-
-        const moveDetail = (post) => {
-            router.push({
-                name: 'Detail',
-                params: { id: post.id },
-                state: { post: post }
-            });
-        }
-
-        // 초기 검색 실행 함수
-        const initializeSearch = () => {
-            const query = route.query.q || '';
-            searchQuery.value = query;
-            if (query) {
-                // 새로운 검색 시작 시 이전 결과 초기화
-                searchResults.value = [];
-                searchCount.value = 0;
-                nextUrl.value = null;
-                hasMore.value = true;
-                
-                // 스크롤을 맨 위로 이동
-                window.scrollTo(0, 0);
-                
-                fetchSearchResults(query);
-            }
-        };
-
-        onMounted(() => {
-            initializeSearch();
-            window.addEventListener('scroll', handleScroll);
-        });
-
-        // route.query.q의 변화를 감지하여 새로운 검색 실행
-        watch(() => route.query.q, (newQuery) => {
-            if (newQuery !== searchQuery.value) {
-                initializeSearch();
-            }
-        });
-
-        onUnmounted(() => {
-            window.removeEventListener('scroll', handleScroll);
-        });
-
-        return {
-            searchCount,
-            searchResults,
-            searchQuery,
-            loading,
-            hasMore,
-            moveDetail,
-            highlightText
-        }
+        
+        nextData.value = data.next;
+        hasMoreData.value = !!data.next;
+    } catch(err) {
+        console.error('검색 실패:', err);
+        searchResults.value = [];
+    } finally {
+        // 로딩 끝
+        isLoading.value = false;
     }
 }
+
+const highlightText = (text) => {
+    if (!text || !searchQuery.value) return text;
+    
+    const query = searchQuery.value.trim();
+    if (!query) return text;
+    
+    // 정규표현식으로 대소문자 구분 없이 검색어를 찾아서 하이라이트
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark class="highlight">$1</mark>');
+}
+
+const handleScroll = () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.offsetHeight;
+    
+    if (scrollTop + windowHeight >= documentHeight - 100) {
+        if (hasMoreData.value && !isLoading.value && nextData.value) {
+            fetchSearchResults(searchQuery.value, nextData.value);
+        }
+    }
+};
+
+const moveDetail = (post) => {
+    router.push({
+        name: 'Detail',
+        params: { id: post.id },
+        state: { post: post }
+    });
+}
+
+// 초기 검색 실행 함수
+const initializeSearch = () => {
+    const query = route.query.q || '';
+    searchQuery.value = query;
+    if (query) {
+        // 새로운 검색 시작 시 이전 결과 초기화
+        searchResults.value = [];
+        searchCount.value = 0;
+        nextData.value = null;
+        hasMoreData.value = true;
+        window.scrollTo(0, 0);
+        
+        fetchSearchResults(query);
+    }
+};
+
+// route.query.q의 변화 감지, 새로운 검색 실행
+watch(() => route.query.q, (newQuery) => {
+    if (newQuery !== searchQuery.value) {
+        initializeSearch();
+    }
+});
+
+onMounted(() => {
+    initializeSearch();
+    window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <style scoped>

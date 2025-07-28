@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '../components/Home.vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import Home from '../components/Home.vue'
 import NewsMain from '../components/News/NewsMain.vue'
 import NewsDetail from '../components/News/NewsDetail.vue'
 import SearchMain from '@/components/Search/SearchMain.vue'
@@ -8,7 +8,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomePage
+    component: Home
   },
   {
     path: '/news',
@@ -29,7 +29,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 })
 

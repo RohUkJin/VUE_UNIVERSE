@@ -24,47 +24,35 @@
     </header>
 </template>
 
-<script>
+<script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-export default {
-    setup() {
-        const isActive = ref(false);
-        const searchQuery = ref('');
+const isActive = ref(false);
+const searchQuery = ref('');
 
-        const router = useRouter();
+const router = useRouter();
 
-        const clickSearchBtn = () => {
-            isActive.value = !isActive.value;
+const clickSearchBtn = () => {
+    isActive.value = !isActive.value;
 
-            if (isActive.value) {
-                searchQuery.value = '';
-            }
-        }
+    if (isActive.value) {
+        searchQuery.value = '';
+    }
+}
 
-        const handleSearch = async () => {
-            if (searchQuery.value.trim()) {
-                console.log('검색어:', searchQuery.value);
-                
-                // 검색어만 전달하여 SearchMain으로 이동
-                router.push({
-                    name: 'Search',
-                    query: { q: searchQuery.value.trim() }
-                });
-                
-                // 검색창 닫기
-                isActive.value = false;
-            }
-        }
-
-        return {
-            isActive,
-            searchQuery,
-            clickSearchBtn,
-            handleSearch,
-            // moveSearch
-        }
+const handleSearch = async () => {
+    if (searchQuery.value.trim()) {
+        console.log('검색어:', searchQuery.value);
+        
+        // 검색어만 전달하여 SearchMain으로 이동
+        router.push({
+            name: 'Search',
+            query: { q: searchQuery.value.trim() }
+        });
+        
+        // 검색창 닫기
+        isActive.value = false;
     }
 }
 </script>

@@ -1,18 +1,18 @@
 <template>
     <CommonHeader />
     <div class="detail-container">
-        <article class="detail-article" v-if="post">
+        <article class="detail-article" v-if="item">
             <div class="detail-header">
-                <img :src="post.image_url" :alt="post.title" class="detail-image">
+                <img :src="item.image_url" :alt="item.title" class="detail-image">
                 <div class="detail-meta">
-                    <span class="detail-site">{{ post.news_site }}</span>
-                    <h1 class="detail-title">{{ post.title }}</h1>
-                    <p class="detail-date">{{ formatDate(post.published_at) }}</p>
+                    <span class="detail-site">{{ item.news_site }}</span>
+                    <h1 class="detail-title">{{ item.title }}</h1>
+                    <p class="detail-date">{{ formatDate(item.published_at) }}</p>
                 </div>
             </div>
             <div class="detail-content">
-                <p class="detail-summary">{{ post.summary }}</p>
-                <a :href="post.url" target="_blank" rel="noopener noreferrer" class="detail-link">
+                <p class="detail-summary">{{ item.summary }}</p>
+                <a :href="item.url" target="_blank" rel="noopener noreferrer" class="detail-link">
                     Get Original →
                 </a>
             </div>
@@ -24,53 +24,38 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
 
 import CommonHeader from '../Common/CommonHeader.vue';
 
-export default {
-    components: {
-        CommonHeader
-    },
-    props: {
-        id: String
-    },
-    setup(props) {
-        const post = ref(null);
+const props = defineProps({
+    id: Number
+});
 
-        onMounted(() => {
-            if (history.state && history.state.post) {
-                post.value = history.state.post;
-            } else {
-                fetchPostById(props.id);
-            }
-        });
+const item = ref(null);
 
-        const fetchPostById = async (id) => {
-            try {
-                const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${id}/`);
-                const data = await res.json();
-                post.value = data;
-            } catch (err) {
-                console.error('포스트 로딩 실패:', err);
-            }
-        };
+onMounted(() => {
+    getData(props.id);
+});
 
-        const formatDate = (dateString) => {
-            return new Date(dateString).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        };
-
-        return {
-            post,
-            formatDate
-        };
+const getData = async (id) => {
+    try {
+        const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${id}/`);
+        const data = await res.json();
+        item.value = data;
+    } catch (err) {
+        console.error('데이터 로딩 실패:', err);
     }
-}
+};
+
+const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+};
 </script>
 
 <style scoped>
