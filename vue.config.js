@@ -3,7 +3,7 @@ module.exports = defineConfig({
   transpileDependencies: true,
   // GitHub Pages 배포용 설정
   publicPath: process.env.NODE_ENV === 'production' 
-    ? '/universe/' // 저장소명에 맞게 변경하세요
+    ? 'https://rohukjin.github.io/universe/' // 저장소명에 맞게 변경하세요
     : '/',
   outputDir: 'dist',
   assetsDir: 'static',
