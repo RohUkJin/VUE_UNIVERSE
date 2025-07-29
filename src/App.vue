@@ -1,14 +1,10 @@
 <template>
+  <CommonHeader />
   <router-view />
 </template>
 
-<script>
-
-
-export default {
-  name: 'App',
-  components: {}
-}
+<script setup>
+import CommonHeader from './components/Common/CommonHeader.vue';
 </script>
 
 <style>
@@ -20,10 +16,9 @@ export default {
 }
 
 body {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
-
 
 h1,
 h2,
@@ -54,10 +49,14 @@ a {
   text-decoration: none;
 }
 
-button {background:none;border:0;outline:0;padding:0;}
+button {
+  background: none;
+  border: 0;
+  outline: 0;
+  padding: 0;
+}
 
 .inner {
   max-width: 1200px;
 }
-
 </style>

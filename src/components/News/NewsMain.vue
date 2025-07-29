@@ -1,12 +1,15 @@
 <template>
-    <CommonHeader />
     <section class="news">
         <div class="inner">
             <h1 class="title">News</h1>
             <ul class="news-list">
                 <li class="news-item" v-for="item in news" :key="item.id" @click="moveDetail(item)">
                     <div class="news-imgbx">
-                        <img :src="item.image_url" :alt="item.title">
+                        <img 
+                            :src="item.image_url || replaceImage" 
+                            :alt="item.title"
+                            @error="getReplaceImage"
+                        >
                     </div>
                     <div class="news-txtbx">
                         <span class="news-site">{{ item.news_site }}</span>
@@ -24,52 +27,46 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-
-import CommonHeader from '../Common/CommonHeader.vue';
 
 const news = ref([]);
 const isLoading = ref(false);
 const nextData = ref(null);
-const hasMoreData = ref(true);
+const hasNextData = ref(true);
 
 const router = useRouter();
+
+// 상세 페이지 클릭시, 디테일 페이지 이동
+const moveDetail = (item) => {
+    router.push(`news/detail/${item.id}`);
+}
 
 // API 호출 함수
 const getData = async (next = null) => {
     if (isLoading.value) return;
-
     isLoading.value = true;
 
     try {
-        const apiUrl = next || `https://api.spaceflightnewsapi.net/v4/blogs/?limit=10&offset=0`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        const response = await fetch(next || `https://api.spaceflightnewsapi.net/v4/blogs/?limit=10&offset=0`);
+        const data = await response.json();
 
         if (next) {
-            // 파라미터에 URL 들어올시(무한 스크롤)
+            // 무한 스크롤 - 파라미터에 URL 들어올시
             news.value = [...news.value, ...data.results];
         } else {
-            // 최초 로딩시
+            // 컴포넌트가 처음 마운트 될 때만
             news.value = data.results;
         }
 
         nextData.value = data.next;
-        hasMoreData.value = !!data.next;
+        hasNextData.value = !!data.next;
     } catch (err) {
         console.error('데이터 로딩 실패:', err);
     } finally {
         isLoading.value = false;
     }
-}
-
-// 상세 페이지 클릭 이벤트
-const moveDetail = (post) => {
-    router.push({
-        name: 'Detail',
-        params: { id: post.id },
-    });
 }
 
 // 스크롤 감지 이벤트
@@ -79,21 +76,31 @@ const handleScroll = () => {
     const documentHeight = document.documentElement.offsetHeight;
 
     if (scrollTop + windowHeight >= documentHeight - 100) {
-        if (hasMoreData.value && !isLoading.value && nextData.value) {
+        // 다음 데이터와 여부가 존재하고, 로딩중이지 않을 때 API 재호출
+        if (hasNextData.value && !isLoading.value && nextData.value) {
             getData(nextData.value);
         }
     }
 };
 
+// 데이터에 이미지가 없을 때 대체 이미지 삽입
+const replaceImage = new URL('../../assets/images/Image-not-found.png', import.meta.url).href;
+const getReplaceImage = (e) => {
+    if (e.target.src !== replaceImage) {
+        e.target.src = replaceImage;
+    }
+};
+
+// 컴포넌트가 마운트 될 때, API 호출 및 스크롤 이벤트 추가
 onMounted(() => {
     getData();
     window.addEventListener('scroll', handleScroll);
 });
 
+// 컴포넌트가 언마운트 될 때, 스크롤 이벤트 제거
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
 });
-
 
 </script>
 
@@ -232,6 +239,11 @@ onUnmounted(() => {
 
     .news-txtbx {
         padding-left: 0;
+    }
+
+    .news-summary {
+        font-size: 18px;
+        max-height: 180px;
     }
 }
 </style>

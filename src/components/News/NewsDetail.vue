@@ -1,48 +1,42 @@
 <template>
-    <CommonHeader />
-    <div class="detail-container">
-        <article class="detail-article" v-if="item">
-            <div class="detail-header">
-                <img :src="item.image_url" :alt="item.title" class="detail-image">
-                <div class="detail-meta">
-                    <span class="detail-site">{{ item.news_site }}</span>
-                    <h1 class="detail-title">{{ item.title }}</h1>
-                    <p class="detail-date">{{ formatDate(item.published_at) }}</p>
-                </div>
+    <article class="detail-article" v-if="item">
+        <div class="detail-header">
+            <img :src="item.image_url" :alt="item.title" class="detail-image">
+            <div class="detail-meta">
+                <span class="detail-site">{{ item.news_site }}</span>
+                <h1 class="detail-title">{{ item.title }}</h1>
+                <p class="detail-date">{{ formatDate(item.published_at) }}</p>
             </div>
-            <div class="detail-content">
-                <p class="detail-summary">{{ item.summary }}</p>
-                <a :href="item.url" target="_blank" rel="noopener noreferrer" class="detail-link">
-                    Get Original →
-                </a>
-            </div>
-        </article>
-
-        <div v-else class="loading-indicator">
-            <p>Loading...</p>
         </div>
+        <div class="detail-content">
+            <p class="detail-summary">{{ item.summary }}</p>
+            <a :href="item.url" target="_blank" rel="noopener noreferrer" class="detail-link">
+                Get Original →
+            </a>
+        </div>
+    </article>
+
+    <div v-else class="loading-indicator">
+        <p>Loading...</p>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 
-import CommonHeader from '../Common/CommonHeader.vue';
-
+// 상위 Props 정의
 const props = defineProps({
     id: Number
 });
 
 const item = ref(null);
 
-onMounted(() => {
-    getData(props.id);
-});
-
+// API 호출 함수
 const getData = async (id) => {
     try {
-        const res = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${id}/`);
-        const data = await res.json();
+        const response = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${id}/`);
+        const data = await response.json();
+
         item.value = data;
     } catch (err) {
         console.error('데이터 로딩 실패:', err);
@@ -56,10 +50,15 @@ const formatDate = (dateString) => {
         day: 'numeric'
     });
 };
+
+onMounted(() => {
+    getData(props.id);
+});
+
 </script>
 
 <style scoped>
-.detail-container {
+.detail-article {
     max-width: 1200px;
     margin: 0 auto;
     padding: 24px 0 24px;
@@ -141,11 +140,8 @@ const formatDate = (dateString) => {
 }
 
 @media screen and (max-width: 1200px) {
-
     .detail-article {
-        padding: 0 24px;
+        padding: 24px;
     }
-
-
 }
 </style>

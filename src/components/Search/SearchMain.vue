@@ -1,5 +1,4 @@
 <template>
-    <CommonHeader />
     <section class="search">
         <div class="inner">
             <h1 class="title">
@@ -26,8 +25,6 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import CommonHeader from '../Common/CommonHeader.vue';
-
 const searchCount = ref(0)
 const searchResults = ref([]);
 const searchQuery = ref('');
@@ -35,7 +32,7 @@ const isLoading = ref(false);
 const route = useRoute();
 const router = useRouter();
 const nextData = ref(null);
-const hasMoreData = ref(true);
+const hasNextData = ref(true);
 
 const fetchSearchResults = async (query, next = null) => {
     // 검색값 없으면 종료
@@ -58,7 +55,7 @@ const fetchSearchResults = async (query, next = null) => {
         }
         
         nextData.value = data.next;
-        hasMoreData.value = !!data.next;
+        hasNextData.value = !!data.next;
     } catch(err) {
         console.error('검색 실패:', err);
         searchResults.value = [];
@@ -74,7 +71,6 @@ const highlightText = (text) => {
     const query = searchQuery.value.trim();
     if (!query) return text;
     
-    // 정규표현식으로 대소문자 구분 없이 검색어를 찾아서 하이라이트
     const regex = new RegExp(`(${query})`, 'gi');
     return text.replace(regex, '<mark class="highlight">$1</mark>');
 }
@@ -85,7 +81,7 @@ const handleScroll = () => {
     const documentHeight = document.documentElement.offsetHeight;
     
     if (scrollTop + windowHeight >= documentHeight - 100) {
-        if (hasMoreData.value && !isLoading.value && nextData.value) {
+        if (hasNextData.value && !isLoading.value && nextData.value) {
             fetchSearchResults(searchQuery.value, nextData.value);
         }
     }
@@ -108,7 +104,7 @@ const initializeSearch = () => {
         searchResults.value = [];
         searchCount.value = 0;
         nextData.value = null;
-        hasMoreData.value = true;
+        hasNextData.value = true;
         window.scrollTo(0, 0);
         
         fetchSearchResults(query);
@@ -242,7 +238,6 @@ onUnmounted(() => {
     text-overflow: ellipsis;
 }
 
-/* 검색어 하이라이트 스타일 */
 .highlight {
     background-color: #ffff00;
     color: #000;
