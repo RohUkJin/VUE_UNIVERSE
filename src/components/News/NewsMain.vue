@@ -53,7 +53,7 @@ const getData = async (next = null) => {
         const data = await response.json();
 
         if (next) {
-            // 무한 스크롤 - 파라미터에 URL 들어올시
+            // 무한 스크롤 - 파라미터에 URL 들어올시 불변성 유지하며 신규 데이터 추가
             news.value = [...news.value, ...data.results];
         } else {
             // 컴포넌트가 처음 마운트 될 때만
@@ -75,6 +75,7 @@ const handleScroll = () => {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.offsetHeight;
 
+    // 현재 스크롤 위치가 밑에서 100px 이내로 가면
     if (scrollTop + windowHeight >= documentHeight - 100) {
         // 다음 데이터와 여부가 존재하고, 로딩중이지 않을 때 API 재호출
         if (hasNextData.value && !isLoading.value && nextData.value) {

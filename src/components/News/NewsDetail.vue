@@ -26,7 +26,7 @@ import { ref, onMounted } from 'vue';
 
 // 상위 Props 정의
 const props = defineProps({
-    id: Number
+    id: String
 });
 
 const item = ref(null);
@@ -34,7 +34,7 @@ const item = ref(null);
 // API 호출 함수
 const getData = async (id) => {
     try {
-        const response = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${id}/`);
+        const response = await fetch(`https://api.spaceflightnewsapi.net/v4/blogs/${Number(id)}/`);
         const data = await response.json();
 
         item.value = data;

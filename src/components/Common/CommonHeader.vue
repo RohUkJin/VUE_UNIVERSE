@@ -50,7 +50,6 @@ const handleSearch = async () => {
             query: { q: searchQuery.value.trim() }
         });
         
-        // 검색창 닫기
         isActive.value = false;
     }
 }

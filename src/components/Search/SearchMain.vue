@@ -96,7 +96,7 @@ const moveDetail = (post) => {
 }
 
 // 초기 검색 실행 함수
-const initializeSearch = () => {
+const initSearch = () => {
     const query = route.query.q || '';
     searchQuery.value = query;
     if (query) {
@@ -114,12 +114,12 @@ const initializeSearch = () => {
 // route.query.q의 변화 감지, 새로운 검색 실행
 watch(() => route.query.q, (newQuery) => {
     if (newQuery !== searchQuery.value) {
-        initializeSearch();
+        initSearch();
     }
 });
 
 onMounted(() => {
-    initializeSearch();
+    initSearch();
     window.addEventListener('scroll', handleScroll);
 });
 

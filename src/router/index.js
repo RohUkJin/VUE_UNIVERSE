@@ -4,6 +4,8 @@ import News from '../pages/News.vue'
 import NewsDetail from '../components/News/NewsDetail.vue'
 import SearchMain from '@/components/Search/SearchMain.vue'
 
+import PracticeMain from '@/components/Practice/PracticeMain.vue'
+
 const routes = [
   {
     path: '/',
@@ -25,6 +27,11 @@ const routes = [
     path: '/search',
     name: 'Search',
     component: SearchMain
+  },
+  {
+    path: '/practice',
+    name: 'Practice',
+    component: PracticeMain
   }
 ]
 
